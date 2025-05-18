@@ -1,0 +1,393 @@
+/* Global Styles */
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #1d4ed8;
+    --accent-color: #3b82f6;
+    --text-color: #1f2937;
+    --light-bg: #f3f4f6;
+    --white: #ffffff;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Navbar Styles */
+.nav-link {
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Hero Section Styles */
+.hero-video {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-overlay {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7));
+}
+
+/* Card Hover Effects */
+.destination-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.destination-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Itinerary Styles */
+.day-column {
+    min-height: 200px;
+    transition: background-color 0.3s ease;
+}
+
+.day-column.drag-over {
+    background-color: rgba(37, 99, 235, 0.1);
+    border: 2px dashed var(--primary-color);
+}
+
+.activity-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.activity-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.activity-card.dragging {
+    opacity: 0.5;
+    transform: scale(1.05);
+}
+
+/* 3D Flight Animation */
+.airplane {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background-image: url('https://cdn-icons-png.flaticon.com/512/3212/3212567.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: fly 20s linear infinite;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+@keyframes fly {
+    0% {
+        transform: translate(-100%, 100%) rotate(0deg);
+    }
+    25% {
+        transform: translate(0%, 50%) rotate(90deg);
+    }
+    50% {
+        transform: translate(100%, 0%) rotate(180deg);
+    }
+    75% {
+        transform: translate(0%, 50%) rotate(270deg);
+    }
+    100% {
+        transform: translate(-100%, 100%) rotate(360deg);
+    }
+}
+
+/* Contact Form Styles */
+.form-input {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Map Styles */
+#map {
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .destination-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Loading Animation */
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+.loading.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}
+
+/* Button Styles */
+.btn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: -100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+.btn:hover::after {
+    left: 100%;
+}
+
+/* Card Grid Animation */
+.card-grid {
+    display: grid;
+    gap: 1.5rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.card-grid.loaded {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Image Hover Effects */
+.img-hover {
+    position: relative;
+    overflow: hidden;
+}
+
+.img-hover img {
+    transition: transform 0.5s ease;
+}
+
+.img-hover:hover img {
+    transform: scale(1.1);
+}
+
+.img-hover::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0, 0, 0, 0.7) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.img-hover:hover::after {
+    opacity: 1;
+}
+
+/* Mobile Menu */
+.mobile-menu {
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.mobile-menu.active {
+    transform: translateX(0);
+}
+
+/* Loading Spinner */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--light-bg);
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Toast Notifications */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 1rem;
+    background-color: var(--white);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none;
+    }
+
+    body {
+        background-color: var(--white);
+    }
+
+    .activity-card {
+        break-inside: avoid;
+    }
+}
+
+/* Enhanced Destination Carousel */
+.destinations-carousel {
+    animation: scroll 40s linear infinite;
+    display: flex;
+    gap: 2rem;
+    padding: 1rem 0;
+}
+
+.destinations-carousel:hover {
+    animation-play-state: paused;
+}
+
+.destinations-carousel .destination-card {
+    flex: 0 0 400px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.destinations-carousel .destination-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+}
+
+.destinations-carousel .destination-card img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.destinations-carousel .destination-card:hover img {
+    transform: scale(1.1);
+}
+
+.destinations-carousel .destination-card .content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    color: white;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.destinations-carousel .destination-card:hover .content {
+    transform: translateY(0);
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(calc(-400px * 9));
+    }
+} 
+.destinations-carousel {
+        animation: scroll 40s linear infinite;
+    }
+    
+    .destinations-carousel:hover {
+        animation-play-state: paused;
+    }
+    
+    @keyframes scroll {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(calc(-400px * 9));
+        }
+    }

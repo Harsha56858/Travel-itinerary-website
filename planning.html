@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Itinerary Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        .activity-card {
+            transition: all 0.3s ease;
+        }
+        
+        .activity-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .day-column {
+            min-height: 200px;
+            border: 2px dashed #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .day-column.drag-over {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .activity-card.dragging {
+            opacity: 0.5;
+        }
+
+        .add-activity-btn {
+            transition: all 0.3s ease;
+        }
+
+        .add-activity-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .time-input {
+            width: 100px;
+        }
+
+        .activity-form {
+            display: none;
+        }
+
+        .activity-form.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-lg fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <img class="h-8 w-8" src="https://cdn-icons-png.flaticon.com/512/3212/3212567.png" alt="Logo">
+                    <span class="ml-2 text-xl font-semibold">Travel Planner</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="text-gray-600 hover:text-blue-600">Home</a>
+                    <button id="saveItinerary" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        Save Itinerary
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold">Plan Your Trip</h1>
+                <div class="flex space-x-4">
+                    <input type="text" id="tripName" placeholder="Trip Name" class="px-4 py-2 border rounded-lg">
+                    <input type="date" id="startDate" class="px-4 py-2 border rounded-lg">
+                    <input type="date" id="endDate" class="px-4 py-2 border rounded-lg">
+                </div>
+            </div>
+
+            <!-- Itinerary Container -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="itineraryContainer">
+                <!-- Days will be dynamically added here -->
+            </div>
+
+            <!-- Add Day Button -->
+            <button id="addDayBtn" class="mt-8 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors duration-300">
+                Add Day
+            </button>
+        </div>
+    </div>
+
+    <!-- Activity Form Modal -->
+    <div id="activityModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold mb-6">Add Activity</h2>
+            <form id="activityForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Activity Name</label>
+                    <input type="text" id="activityName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Start Time</label>
+                        <input type="time" id="startTime" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">End Time</label>
+                        <input type="time" id="endTime" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Location</label>
+                    <input type="text" id="location" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Notes</label>
+                    <textarea id="notes" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancelActivity" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Add Activity</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize variables
+        let currentDay = 1;
+        let currentActivityId = 1;
+        let selectedDay = null;
+
+        // DOM Elements
+        const itineraryContainer = document.getElementById('itineraryContainer');
+        const addDayBtn = document.getElementById('addDayBtn');
+        const activityModal = document.getElementById('activityModal');
+        const activityForm = document.getElementById('activityForm');
+        const cancelActivity = document.getElementById('cancelActivity');
+        const saveItinerary = document.getElementById('saveItinerary');
+
+        // Add Day Function
+        function addDay() {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'bg-white rounded-lg shadow-md p-4';
+            dayElement.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">Day ${currentDay}</h2>
+                    <button class="add-activity-btn text-blue-600 hover:text-blue-700" onclick="openActivityModal(${currentDay})">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="day-column" data-day="${currentDay}" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <!-- Activities will be added here -->
+                </div>
+            `;
+            itineraryContainer.appendChild(dayElement);
+            currentDay++;
+        }
+
+        // Activity Modal Functions
+        function openActivityModal(day) {
+            selectedDay = day;
+            activityModal.classList.remove('hidden');
+            activityModal.classList.add('flex');
+        }
+
+        function closeActivityModal() {
+            activityModal.classList.add('hidden');
+            activityModal.classList.remove('flex');
+            activityForm.reset();
+            selectedDay = null;
+        }
+
+        // Add Activity Function
+        function addActivity(activity) {
+            const dayColumn = document.querySelector(`.day-column[data-day="${selectedDay}"]`);
+            const activityElement = document.createElement('div');
+            activityElement.className = 'activity-card bg-blue-50 p-4 rounded-lg mb-4 cursor-move';
+            activityElement.draggable = true;
+            activityElement.id = `activity-${currentActivityId}`;
+            activityElement.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-semibold">${activity.name}</h3>
+                        <p class="text-sm text-gray-600">${activity.startTime} - ${activity.endTime}</p>
+                        <p class="text-sm text-gray-600">${activity.location}</p>
+                    </div>
+                    <button onclick="deleteActivity(${currentActivityId})" class="text-red-600 hover:text-red-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+                ${activity.notes ? `<p class="text-sm text-gray-600 mt-2">${activity.notes}</p>` : ''}
+            `;
+            dayColumn.appendChild(activityElement);
+            currentActivityId++;
+            closeActivityModal();
+        }
+
+        // Delete Activity Function
+        function deleteActivity(id) {
+            const activity = document.getElementById(`activity-${id}`);
+            activity.remove();
+        }
+
+        // Drag and Drop Functions
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+            ev.target.classList.add('dragging');
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            ev.currentTarget.appendChild(draggedElement);
+            draggedElement.classList.remove('dragging');
+            ev.currentTarget.classList.remove('drag-over');
+        }
+
+        // Event Listeners
+        addDayBtn.addEventListener('click', addDay);
+        cancelActivity.addEventListener('click', closeActivityModal);
+
+        activityForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const activity = {
+                name: document.getElementById('activityName').value,
+                startTime: document.getElementById('startTime').value,
+                endTime: document.getElementById('endTime').value,
+                location: document.getElementById('location').value,
+                notes: document.getElementById('notes').value
+            };
+            addActivity(activity);
+        });
+
+        saveItinerary.addEventListener('click', () => {
+            const tripData = {
+                name: document.getElementById('tripName').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                days: Array.from(document.querySelectorAll('.day-column')).map(day => ({
+                    day: day.dataset.day,
+                    activities: Array.from(day.children).map(activity => ({
+                        name: activity.querySelector('h3').textContent,
+                        time: activity.querySelector('p').textContent,
+                        location: activity.querySelectorAll('p')[1].textContent,
+                        notes: activity.querySelector('p:last-child')?.textContent || ''
+                    }))
+                }))
+            };
+            localStorage.setItem('tripData', JSON.stringify(tripData));
+            alert('Itinerary saved successfully!');
+        });
+
+        // Initialize first day
+        addDay();
+    </script>
+</body>
+</html> 
